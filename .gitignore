@@ -1,0 +1,8 @@
+__pycache__/
+.vscode
+
+include/
+lib/
+Scripts/
+
+db.sqlite3
