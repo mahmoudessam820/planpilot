@@ -1,4 +1,4 @@
-# Plan ✈️ Pilot 👨‍✈️
+# Plan Pilot ✈️  
 
 
 ## Overview
