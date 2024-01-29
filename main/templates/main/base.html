@@ -26,9 +26,44 @@
         </nav>
 
         <main class="py-6 px-8 h-screen">
+
+            <!-- Start error message -->
+
+            {% if messages %}
+
+                <ul class="messages text-center py-2">
+            
+                    {% for message in messages %}
+            
+                        <li 
+                        {% if message.tags %} 
+                            class="
+                            {% if message.tags == 'error' %}
+                                bg-red-500 text-white p-3
+                            {% elif message.tags == 'warning' %}
+                                bg-yellow-500 text-black p-3
+                            {% elif message.tags == 'success' %}
+                                bg-green-500 text-white p-3
+                            {% elif message.tags == 'info' %}
+                                bg-blue-500 text-white p-3
+                            {% endif %}
+                            "
+                        {% endif %}
+                        >
+                            <span>{{ message }}</span>
+                            <button class="close-button px-3">&times;</button>
+                        </li>
+            
+                    {% endfor %}
+            
+                </ul>
+        
+            {% endif %}
+
+            <!-- End error message -->
+
             
             {% block content %}
-
             {% endblock %}
 
         </main>
@@ -36,5 +71,15 @@
         <footer class="py-8 px-8 bg-slate-900 text-center">
             <p class="text-white">Copyright (c) 2024 - Plan Pilot</p>
         </footer>
+
+        <script>
+            // Add event listener to close buttons
+            const closeButton = document.querySelectorAll('.close-button');
+            closeButton.forEach(button => {
+                button.addEventListener('click', () => {
+                    button.parentElement.style.display = 'none';
+                });
+            });
+        </script>
     </body>
 </html>

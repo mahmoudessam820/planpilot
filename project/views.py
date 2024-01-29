@@ -57,8 +57,9 @@ def edit(request, pk):
             project_edit.name = name
             project_edit.description = description
             project_edit.save()
-
             return redirect('/projects/')
+        else:
+            messages.info(request, 'Project name is required')
     
     context = {'project': project_edit}
     return render(request, 'project/edit.html', context)

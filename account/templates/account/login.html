@@ -3,49 +3,6 @@
 
 {% block content %}
 
-{% comment %} Displaying errors messages {% endcomment %}
-
-{% if messages %}
-
-    <ul class="messages text-center py-2">
-
-        {% for message in messages %}
-
-            <li 
-            {% if message.tags %} 
-                class="
-                {% if message.tags == 'error' %}
-                    bg-red-500 text-white p-3
-                {% elif message.tags == 'warning' %}
-                    bg-yellow-500 text-black p-3
-                {% elif message.tags == 'success' %}
-                    bg-green-500 text-white p-3
-                {% elif message.tags == 'info' %}
-                    bg-blue-500 text-white p-3
-                {% endif %}
-                "
-            {% endif %}
-            >
-                <span>{{ message }}</span>
-                <button class="close-button px-3">&times;</button>
-            </li>
-
-        {% endfor %}
-
-    </ul>
-
-    <script>
-        // Add event listener to close buttons
-        const closeButton = document.querySelectorAll('.close-button');
-        closeButton.forEach(button => {
-            button.addEventListener('click', () => {
-                button.parentElement.style.display = 'none';
-            });
-        });
-    </script>
-
-{% endif %}
-
 
 <div class="max-w-xl mx-auto py-8 bg-slate-800 text-center">
 
