@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'account.apps.AccountConfig',
     'project.apps.ProjectConfig',
     'todolist.apps.TodolistConfig',
+    'task.apps.TaskConfig',
 
     # 3rd party apps
 ]

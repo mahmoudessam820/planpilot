@@ -15,3 +15,11 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class ProjectFile(models.Model):
+    pass 
+
+
+class ProjectNote(models.Model):
+    pass
