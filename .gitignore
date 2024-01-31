@@ -4,5 +4,6 @@ __pycache__/
 include/
 lib/
 Scripts/
+media
 
 db.sqlite3

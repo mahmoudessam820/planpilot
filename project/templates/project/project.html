@@ -3,10 +3,12 @@
 
 {% block content %}
 
+
     <h1 class="mb-6 text-3xl">Project Name: {{ project.name }}</h1>
 
     <a href="{% url 'todolist:add' project.id %}" class="py-4 px-8 bg-sky-600 text-white inline-block">To Do</a>
-    <a href="#" class="py-4 px-8 bg-emerald-600 text-white inline-block">Mark as done</a>
+    <a href="{% url 'project:upload_file' project.id %}" class="mt-6 py-4 px-8 bg-slate-600 text-white inline-block">Upload file</a>
+    <a href="{% url 'project:add_note' project.id %}" class="mt-6 py-4 px-8 bg-slate-600 text-white inline-block">Add note</a>
     <a href="{% url 'project:edit' project.id %}" class="py-4 px-8 bg-sky-600 text-white inline-block">Edit</a>
     <a href="{% url 'project:delete' project.id %}" class="py-4 px-8 bg-amber-600 text-white inline-block">Delete</a>
 
@@ -14,6 +16,8 @@
         <p class="mt-6">{{ project.description }}</p>
     {% endif %}
 
+
+    <h2 class="mt-6 text-2xl">Todo lists</h2>
 
     <div class="mt-6 grid grid-cols-4 gap-4">
 
@@ -36,5 +40,44 @@
         {% endfor %}
 
     </div>
+
+
+    <h2 class="mt-6 text-2xl">Files</h2>
+
+    <div class="mt-6 grid grid-cols-4 gap-4">
+        {% for projectfile in project.files.all %}
+            <div class="py-6 px-6 bg-slate-200">
+                <h3 class="mb-4 text-xl">{{ projectfile.name }}</h3>
+
+                <a href="{{ projectfile.attachment.url }}" target="_blank" class="text-sm text-slate-600">
+                    Download file
+                </a>
+
+                |
+
+                <a href="{% url 'project:delete_file' project.id projectfile.id %}" class="text-sm text-slate-600">
+                    Delete
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+
+
+    <h2 class="mt-6 text-2xl">Notes</h2>
+
+    <div class="mt-6 grid grid-cols-4 gap-4">
+        {% for note in project.notes.all %}
+            <div class="py-6 px-6 bg-slate-200">
+                <a href="{% url 'project:note_detail' project.id note.id %}">
+                    <h3 class="mb-4 text-xl">{{ note.name }}</h3>
+
+                    <p class="text-sm text-slate-600">
+                        {{ note.body|truncatechars:50 }}
+                    </p>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+
 
 {% endblock %}

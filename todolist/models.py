@@ -13,6 +13,7 @@ class Todolist(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
 
+    # Relationship models.
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='todolists')
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='todolists')
 

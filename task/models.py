@@ -14,6 +14,7 @@ class Task(models.Model):
     description = models.TextField(blank=True, null=True)
     is_done = models.BooleanField(default=False)
 
+    # Relationship models.
     project = models.ForeignKey(Project, related_name='tasks', on_delete=models.CASCADE)
     todolist = models.ForeignKey(Todolist, related_name='tasks', on_delete=models.CASCADE)
     created_by = models.ForeignKey(User, related_name='tasks', on_delete=models.CASCADE)
