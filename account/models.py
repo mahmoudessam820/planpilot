@@ -42,9 +42,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(auto_now_add=True)
     last_login = models.DateTimeField(blank=True, null=True)
 
+    # Establishes a relationship between the User class and a custom manager class CustomUserManager. 
     objects = CustomUserManager()
 
-    # What you will use for authentication
+    # Specifies the field used for authentication. In this case, it's the 'email' field.
     USERNAME_FIELD = 'email'
+
+    # Specifies the field used as the unique identifier for the user.
     EMAIL_FIELD = 'email'
+
+    # A list of fields required when creating a user via the createsuperuser management command.
     REQUIRED_FIELDS = ['name',]

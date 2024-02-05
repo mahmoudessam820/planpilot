@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src="https://cdn.tailwindcss.com"></script>
+        
     </head>
 
     <body>
@@ -16,6 +16,7 @@
                 <a href="{% url 'main:about' %}" class="text-white">About</a>
 
                 {% if request.user.is_authenticated %}
+                    <a href="{% url 'account:logout' %}" class="py-4 px-8 bg-sky-600 text-white">Logout</a>
                     <a href="{% url 'project:projects' %}" class="py-4 px-8 bg-sky-600 text-white">Projects</a>
                 {% else %}
                     <a href="{% url 'account:login' %}" class="py-4 px-8 bg-slate-600 text-white">Log in</a>
@@ -23,6 +24,7 @@
                 {% endif %}
 
             </div>
+
         </nav>
 
         <main class="py-6 px-8">
@@ -62,7 +64,7 @@
 
             <!-- End error message -->
 
-            
+
             {% block content %}
             {% endblock %}
 
@@ -72,6 +74,8 @@
             <p class="text-white">Copyright (c) 2024 - Plan Pilot</p>
         </footer>
 
+
+        <script src="https://cdn.tailwindcss.com"></script>
         <script>
             // Add event listener to close buttons
             const closeButton = document.querySelectorAll('.close-button');

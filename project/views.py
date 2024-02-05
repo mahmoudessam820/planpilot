@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404 
 
@@ -128,22 +129,34 @@ def add_note(request, project_id):
         name = request.POST.get('name', '')
         body = request.POST.get('body', '')
 
-        if name and body:
+        if not (name and body):
+            messages.info(request, 'Note name and body required')
+        else:
+            try:
+                ProjectNote.objects.create(name=name, body=body, project=project)
+                messages.success(request, 'Note created successfully')
+                return redirect(f'/projects/{project_id}/')
+            except ValidationError as e:
+                messages.error(request, f'Failed to create project: {str(e)}')
 
-            ProjectNote.objects.create(name=name, body=body, project=project)
-            return redirect(f'/projects/{project_id}/')
-    
     return render(request, 'project/add_note.html', {
         'project': project
     })
 
 
-
 @login_required
 def note_detail(request, project_id, pk):
-    
-    project = get_object_or_404(Project, pk=project_id, created_by=request.user)
-    note = project.notes.get(pk=pk)
+    try:
+        project = get_object_or_404(Project, pk=project_id, created_by=request.user)
+        note = project.notes.get(pk=pk)
+    except Project.DoesNotExist:
+        messages.error(request, "Project does not exist")
+    except PermissionDenied:
+        messages.error(request, 'You do not have permission to access this project.')
+        return redirect('/projects/')
+    except Exception as e:
+        messages.error(request, f"An error occurred: {str(e)}")
+        return redirect('/projects/')
 
     return render(request, 'project/note_detail.html', {
         'project': project,
@@ -153,6 +166,7 @@ def note_detail(request, project_id, pk):
 
 @login_required
 def note_edit(request, project_id, pk):
+    
     project = get_object_or_404(Project, pk=project_id, created_by=request.user)
     note = project.notes.get(pk=pk)
 
@@ -164,8 +178,10 @@ def note_edit(request, project_id, pk):
             note.name = name
             note.body = body
             note.save()
-
+            messages.success(request, "Note updated successfully")
             return redirect(f'/projects/{project_id}/')
+        else:
+            messages.error(request, "Note not updated")
 
     return render(request, 'project/note_edit.html', {
         'project': project,
@@ -176,8 +192,8 @@ def note_edit(request, project_id, pk):
 @login_required
 def note_delete(request, project_id, pk):
 
-    project = Project.objects.filter(created_by=request.user).get(pk=project_id)
-    note = project.notes.get(pk=pk)
+    project = get_object_or_404(Project, pk=project_id, created_by=request.user)
+    note = get_object_or_404(project.notes, pk=pk)
     note.delete()
 
     return redirect(f'/projects/{project_id}/')

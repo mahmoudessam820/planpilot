@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.db import IntegrityError
@@ -58,3 +58,8 @@ def login(request):
 
     return render(request, 'account/login.html')
 
+
+def logout(request):
+    auth_logout(request)
+    messages.success(request, 'You have been logged out!')
+    return render(request, 'account/login.html')
