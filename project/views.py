@@ -31,6 +31,7 @@ def add_project(request):
         else:
             try:
                 Project.objects.create(name=name, description=description, created_by=request.user)
+                messages.success(request, 'Project created successfully')
                 return redirect('/projects/')
             except ValidationError as e:
                 messages.error(request, f'Failed to create project: {str(e)}')
@@ -82,7 +83,7 @@ def delete(request, pk):
 def upload_file(request, project_id):
 
     project = get_object_or_404(Project, pk=project_id, created_by=request.user)
-
+    print(project)
     if request.method == 'POST':
         form = ProjectFileForm(request.POST, request.FILES)
         try:

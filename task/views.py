@@ -74,7 +74,7 @@ def edit(request, project_id, todolist_id, pk):
         messages.error(request, 'Project or Todolist or Task does not exist.')
         return redirect(f'/projects/{project_id}/{todolist_id}/')
     
-    if request.method == 'POST':
+    if request.method == 'POST': 
 
         name = request.POST.get('name', '')
         description = request.POST.get('description', '')
@@ -82,7 +82,7 @@ def edit(request, project_id, todolist_id, pk):
         if name:
             try:
                 task.name = name 
-                task.decsriptio = description
+                task.description = description
                 task.save() 
                 messages.success(request, 'Task updated successfully.')
                 return redirect(f'/projects/{project_id}/{todolist_id}/')

@@ -49,7 +49,7 @@ def login(request):
             if user is not None:
                 auth_login(request, user) 
                 messages.success(request, 'Login successful')
-                return redirect('/')
+                return redirect('/projects')
             else:
                 messages.error(request, 'Invalid email or password') 
 

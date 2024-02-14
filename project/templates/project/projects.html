@@ -3,30 +3,31 @@
 
 {% block content %}
 
-    <h1 class="mb-6 text-3xl">Projects</h1>
+<!-- projects -->
 
-    <a href="{% url 'project:add' %}" class="py-4 px-8 bg-sky-600 text-white inline-block">Add project</a>
+<div class="container relative mb-12 max-w-6xl px-10 mx-auto xl:px-0 mt-5">
 
-    <div class="mt-6 grid grid-cols-4 gap-4">
+    <h2 class="mb-5 text-3xl font-extrabold leading-tight text-gray-900">Projects</h2>
 
-        {% for project in projects %}
-
-            <div class="py-6 px-6 bg-slate-200">
-                
-                <a href="{% url 'project:project' project.id %}">
-
-                    <h2 class="mb-4 text-xl">{{ project.name }}</h2>
-
-                    <p class="text-sm text-slate-600">
-                        {{ project.description }}
-                    </p>
-
-                </a>
-
-            </div>
-        
-        {% endfor %}
-
+    <div class="mb-5">
+        <a href="{% url 'project:add' %}" class="bg-blue-700 rounded-lg text-white text-xs text-center px-3 py-2 inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 inline-block align-middle">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            <span class="inline-block align-middle ml-2">Add project</span>
+        </a>
     </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {% for project in projects %}
+            <a href="{% url 'project:project' project.id %}" class="bg-white border border-blue-400 rounded-lg p-5">
+                <h3 class="my-2 text-lg font-bold text-gray-800">{{ project.name }}</h3>
+                <p class="mt-3 mb-1 text-xs font-medium text-blue-400 uppercase">------------</p>
+                <p class="mb-2 text-gray-600">{{ project.description|truncatechars:50  }}</p>
+            </a>
+        {% endfor %}
+    </div>
+
+</div>
 
 {% endblock %}

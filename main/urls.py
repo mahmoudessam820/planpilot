@@ -10,5 +10,9 @@ app_name = 'main'
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('pricing/', views.pricing, name='pricing'),
+    path('features/', views.features, name='features'),
+    path('team/', views.team, name='team'),
+    path('contact/', views.contact, name='contact'),
     path('about/', views.about, name='about'),
 ]

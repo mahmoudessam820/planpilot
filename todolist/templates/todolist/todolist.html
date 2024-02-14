@@ -2,29 +2,71 @@
 
 {% block content %}
 
-    <h1 class="mb-6 text-3xl">{{ todolist.name }}</h1>
+    <!-- Todolist detail -->
 
-    <a href="{% url 'task:add' project.id todolist.id %}" class="py-4 px-8 bg-emerald-600 text-white inline-block">Add task</a>
-    <a href="{% url 'todolist:edit' project.id todolist.id %}" class="py-4 px-8 bg-sky-600 text-white inline-block">Edit</a>
-    <a href="{% url 'todolist:delete' project.id todolist.id %}" class="py-4 px-8 bg-amber-600 text-white inline-block">Delete</a>
+    <div class="container relative flex flex-col justify-between h-full max-w-6xl px-10 mx-auto xl:px-0 mt-5">
 
-    {% if todolist.description %}
-        <p class="mt-6">{{ todolist.description }}</p>
-    {% endif %}
+        <h2 class="mb-5 text-3xl font-extrabold leading-tight text-gray-900">Name: {{ todolist.name }}</h2>
 
-    <div class="mt-6 grid grid-cols-4 gap-4">
-        {% for task in todolist.tasks.all %}
-            <div class="py-6 px-6 bg-slate-200">
-                <a href="{% url 'task:detail' todolist.project.id todolist.id task.id %}">
-
-                    <h2 class="mb-4 text-xl">{{ task.name }}</h2>
-
-                    <p class="text-sm text-slate-600">
-                        {{ task.description }}
-                    </p>
-
-                </a>
+        <div class="flex-1 ">
+            <div class="flex flex-wrap ">
+                <a href="{% url 'task:add' project.id todolist.id %}" class="bg-black rounded-lg text-white text-xs text-center self-center px-3 py-2 my-2 mx-2"> Add task</a>
+                <a href="{% url 'todolist:edit' project.id todolist.id %}" class="bg-red-700 rounded-lg text-white text-xs text-center self-center px-3 py-2 my-2 mx-2"> Edit</a>
+                <a href="{% url 'todolist:delete' project.id todolist.id %}" class="bg-red-800 rounded-lg text-white text-xs text-center self-center px-3 py-2 my-2 mx-2"> Delete</a>
             </div>
-        {% endfor %}
+            <hr class="my-2 mb-3">
+        </div>
+
+
+        {% if todolist.description %}
+
+            <div class="flex flex-col w-full mb-10 sm:flex-row">
+
+                <div class="w-full mb-10 sm:mb-0 sm:w-1/2">
+                    <div class="relative h-full ml-0 mr-0 sm:mr-10">
+                        <span class="absolute top-0 left-0 w-full h-full mt-1 ml-1 bg-green-500 rounded-lg"></span>
+                        <div class="relative h-full p-5 bg-white border-2 border-green-500 rounded-lg">
+                            <div class="flex items-center -mt-1">
+                                <h3 class="my-2 ml-3 text-lg font-bold text-gray-800">Description</h3>
+                            </div>
+                            <p class="mt-3 mb-1 text-xs font-medium text-indigo-500 uppercase">------------</p>
+                            <p class="mb-2 text-gray-600">{{ todolist.description }}</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        {% endif %}
+
     </div>
+
+    <!-- Tasks -->
+
+    <div class="container relative mb-12 max-w-6xl px-10 mx-auto xl:px-0 mt-5">
+
+        <h3 class="mb-5 text-3xl font-extrabold leading-tight text-gray-900">Tasks</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+            {% for task in todolist.tasks.all %}
+
+                <a href="{% url 'task:detail' todolist.project.id todolist.id task.id %}" class="bg-white  rounded-lg p-5">
+                    <div class="relative h-full ml-0 mr-0 sm:mr-10">
+                        <span class="absolute top-0 left-0 w-full h-full mt-1 ml-1 bg-indigo-500 rounded-lg"></span>
+                        <div class="relative h-full p-5 bg-white border-2 border-indigo-500 rounded-lg">
+                            <h3 class="my-2 text-lg font-bold text-gray-800">{{ task.name }}</h3>
+                            <p class="mt-3 mb-1 text-xs font-medium text-blue-400 uppercase">------------</p>
+                            <p class="mb-2 text-gray-600">{{ task.description|truncatechars:50 }}</p>
+                        </div>
+                    </div>
+                </a>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
 {% endblock %}

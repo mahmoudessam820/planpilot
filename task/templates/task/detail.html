@@ -3,20 +3,53 @@
 
 {% block content %}
 
-    <h1 class="mb-6 text-3xl">{{ task.name }}</h1>
+    <!-- task detail -->
 
-    <p><strong class="font-bold">Status:</strong> {% if task.is_done %}done{% else %}todo{% endif %}</p>
+    <div class="container relative flex flex-col justify-between h-full max-w-6xl px-10 mx-auto xl:px-0 mt-5">
 
-    {% if not task.is_done %}
-        <a href="?is_done=yes" class="py-4 px-8 bg-emerald-600 text-white inline-block">Mark as done</a>
-    {% endif %}
+        <h2 class="mb-5 text-2xl font-extrabold leading-tight text-gray-900">{{ task.name }}</h2>
 
-    <a href="{% url 'task:edit' task.project_id task.todolist_id task.id %}" class="py-4 mt-6 px-8 bg-sky-600 text-white inline-block">Edit</a>
-    <a href="{% url 'task:delete' task.project_id task.todolist_id task.id %}" class="py-4 mt-6 px-8 bg-amber-600 text-white inline-block">Delete</a>
+        <h6 class="mb-5 text-1xl font-extrabold leading-tight text-gray-900">
+            <strong>Status:</strong> 
+            {% if task.is_done %}
+                <span class="bg-yellow-500 text-black text-sm font-medium me-2 px-2.5 py-0.5 rounded ">Done</span>
+            {% else %}
+                <span class="bg-red-700 text-white text-sm font-medium me-2 px-2.5 py-0.5 rounded ">Todo</span>
+            {% endif %}
+        </h6>
 
-    {% if task.description %}
-        <p class="mt-6">{{ task.description }}</p>
-    {% endif %}
+        <div class="flex-1 ">
+            <div class="flex flex-wrap ">
+                {% if not task.is_done %}
+                    <a href="?is_done=yes" class="bg-black rounded-lg text-white text-xs text-center self-center px-3 py-2 my-2 mx-2"> Mark as done</a>
+                {% endif %}
+                <a href="{% url 'task:edit' task.project_id task.todolist_id task.id %}" class="bg-red-700 rounded-lg text-white text-xs text-center self-center px-3 py-2 my-2 mx-2"> Edit</a>
+                <a href="{% url 'task:delete' task.project_id task.todolist_id task.id %}" class="bg-red-800 rounded-lg text-white text-xs text-center self-center px-3 py-2 my-2 mx-2"> Delete</a>
+            </div>
+            <hr class="my-2 mb-3">
+        </div>
 
+        {% if task.description %}
+
+            <div class="flex flex-col w-full mb-10 sm:flex-row">
+
+                <div class="w-full mb-10 sm:mb-0 sm:w-1/2">
+                    <div class="relative h-full ml-0 mr-0 sm:mr-10">
+                        <span class="absolute top-0 left-0 w-full h-full mt-1 ml-1 bg-green-500 rounded-lg"></span>
+                        <div class="relative h-full p-5 bg-white border-2 border-green-500 rounded-lg">
+                            <div class="flex items-center -mt-1">
+                                <h3 class="my-2 ml-3 text-lg font-bold text-gray-800">Description</h3>
+                            </div>
+                            <p class="mt-3 mb-1 text-xs font-medium text-indigo-500 uppercase">------------</p>
+                            <p class="mb-2 text-gray-600">{{ task.description}}</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    </div>
 
 {% endblock %}
