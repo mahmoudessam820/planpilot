@@ -5,6 +5,16 @@
 
 Plan Pilot  is a comprehensive project management 📅 system built on the Python Django framework, designed to streamline and enhance the project planning and execution process. It aims to provide a robust platform that empowers teams to efficiently manage tasks, collaborate seamlessly, and achieve project milestones with ease.
 
+<!-- demo -->
+## Example Site
+
+| [![](screenshots/home.png)]| [![](screenshots/login.png)] | [![](screenshots/signup.png)] |
+|:---:|:---:|:---:|
+| **Homepage 1**  | **Homepage 2**  | **About**  |
+| [![](screenshots/service.png)] | [![](screenshots/project.png)] | [![](screenshots/news.png)] |
+| **Service** | **Project** | **News** |
+
+
 
 ## Getting Started
 

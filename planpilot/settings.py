@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'task.apps.TaskConfig',
 
     # 3rd party apps
+
 ]
 
 MIDDLEWARE = [
