@@ -10,9 +10,14 @@ Plan Pilot  is a comprehensive project management 📅 system built on the Pytho
 
 | ![](screenshots/home.png)| ![](screenshots/login.png) | ![](screenshots/signup.png) |
 |:---:|:---:|:---:|
-| **Homepage**  | **login**  | **signup**  |
-| ![](screenshots/features.png) | ![](screenshots/project.png) | ![](screenshots/news.png) |
-| **features** | **Project** | **News** |
+| **Homepage**  | **Login**  | **Signup**  |
+| ![](screenshots/features.png) | ![](screenshots/project.png) | ![](screenshots/projects.png) |
+| **Features** | **Project** | **Projects** |
+| ![](screenshots/contact.png) | ![](screenshots/teams.png) | ![](screenshots/todo.png) |
+| **Contact** | **Teams** | **Todo** |
+| ![](screenshots/task.png) | ![](screenshots/form.png) |
+| **Task** | **Form** |
+
 
 
 
