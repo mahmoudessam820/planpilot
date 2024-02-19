@@ -8,11 +8,11 @@ Plan Pilot  is a comprehensive project management 📅 system built on the Pytho
 <!-- demo -->
 ## Example Site
 
-| [![](screenshots/home.png)]| [![](screenshots/login.png)] | [![](screenshots/signup.png)] |
+| ![](screenshots/home.png)| ![](screenshots/login.png) | ![](screenshots/signup.png) |
 |:---:|:---:|:---:|
 | **Homepage**  | **login**  | **signup**  |
-| ![](screenshots/service.png) | [![](screenshots/project.png)] | [![](screenshots/news.png)] |
-| **Service** | **Project** | **News** |
+| ![](screenshots/features.png) | ![](screenshots/project.png) | ![](screenshots/news.png) |
+| **features** | **Project** | **News** |
 
 
 
