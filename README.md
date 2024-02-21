@@ -89,8 +89,3 @@ pip install -r requirements.txt
 ## Feedback
 
 If you have any feedback, please reach out to us at esame4166@gmail.com
-
-
-## Screenshots
-
-Coming soon 😎

@@ -81,22 +81,23 @@ def delete(request, pk):
 
 @login_required
 def upload_file(request, project_id):
-
+    # Ensure the user has access to the project
     project = get_object_or_404(Project, pk=project_id, created_by=request.user)
-    print(project)
+
     if request.method == 'POST':
         form = ProjectFileForm(request.POST, request.FILES)
-        try:
-            if form.is_valid():
-                projectfile = form.save(commit=False)
-                projectfile.project = project
-                projectfile.save()
-                messages.success(request, 'File uploaded successfully.')
-                return redirect(f'/projects/{project_id}/')
-            else: 
-                messages.error(request, 'Form is not valid. Please correct the errors.')
-        except Exception as e:
-            messages.error(request, f'An error occurred: {e}')
+        if form.is_valid():
+            projectfile = form.save(commit=False)
+            projectfile.project = project
+            projectfile.save()
+            messages.success(request, 'File uploaded successfully.')
+            return redirect(f'/projects/{project_id}/')
+        else:
+            # If form is not valid, show error messages
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+            return redirect(f'/projects/{project_id}/files/upload/')
     else:
         form = ProjectFileForm()
     return render(request, 'project/upload_file.html', {

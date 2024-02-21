@@ -290,18 +290,8 @@
         <script src="https://unpkg.com/flowbite@1.4.1/dist/flowbite.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/js/all.min.js"></script>
-        <script>
-            // Add event listener to close buttons
-            const closeButton = document.querySelectorAll('.close-button');
-            closeButton.forEach(button => {
-                button.addEventListener('click', () => {
-                    button.parentElement.style.display = 'none';
-                });
-            });
-            flatpickr("#datepicker", {
-                // Configuration options for Flatpickr
-                // You can customize the appearance and behavior here
-            });
-        </script>
+
+        <!-- main.js -->
+        <script src="{% static '/js/main.js' %}"></script>
     </body>
 </html>
