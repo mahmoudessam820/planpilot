@@ -7,8 +7,9 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('main.urls')),
-    path('', include('account.urls')),
+    path('', include('main.urls', namespace='main')),
+    path('', include('account.urls', namespace='account')),
+    path('social-auth/', include('social_django.urls', namespace='social')),
     path('projects/', include('project.urls')),
     path('projects/<uuid:project_id>/', include('todolist.urls')),
     path('projects/<uuid:project_id>/<uuid:todolist_id>/', include('task.urls')),

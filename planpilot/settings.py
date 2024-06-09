@@ -10,7 +10,7 @@ SECRET_KEY = 'django-insecure-uz)+pm-&4@8fqlkr3^m(8r!c0vvz9m(0#z60*wwof%_3be6392
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['planpilot.com', 'localhost', '127.0.0.1']
 
 
 # Modify user model
@@ -35,6 +35,8 @@ INSTALLED_APPS = [
     'task.apps.TaskConfig',
 
     # 3rd party apps
+    'social_django',
+    'django_extensions',
 
 ]
 
@@ -47,6 +49,45 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+
+# Social Auth
+
+AUTHENTICATION_BACKENDS = [
+    'social_core.backends.facebook.FacebookOAuth2',
+    'social_core.backends.twitter.TwitterOAuth',
+    'social_core.backends.google.GoogleOAuth2',
+]
+
+
+# Social Auth keys
+
+# Facebook
+SOCIAL_AUTH_FACEBOOK_KEY = 'XXX' # Facebook App ID
+SOCIAL_AUTH_FACEBOOK_SECRET = 'XXX' # Facebook App Secret
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+
+# Twitter
+SOCIAL_AUTH_TWITTER_KEY = 'XXX' # Twitter API Key
+SOCIAL_AUTH_TWITTER_SECRET = 'XXX' # Twitter API Secret
+
+# Google
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = 'XXX' # Google Client ID
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'XXX' # Google Client Secret
+
+# Creating a profile for users
+SOCIAL_AUTH_PIPELINE = [
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.get_username',
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+]
+
 
 ROOT_URLCONF = 'planpilot.urls'
 

@@ -7,3 +7,6 @@ Scripts/
 media
 
 db.sqlite3
+
+cert.crt
+cert.key
