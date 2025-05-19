@@ -16,7 +16,6 @@
     <body>
 
         <!-- Navbar -->
-
         <nav class="bg-white border-gray-200 py-2.5 dark:bg-gray-900">
             <div class="flex flex-wrap items-center justify-between max-w-screen-xl px-4 mx-auto">
                 
@@ -33,9 +32,17 @@
                     
                     {% if request.user.is_authenticated %}
                         <a class="hidden mr-1 items-center justify-center rounded-xl bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 transition-all duration-150 hover:bg-gray-50 sm:inline-flex"
-                        href="{% url 'account:logout' %}">
-                            Logout
+                            href="{% url 'account:logout' %}">
+                                Logout
                         </a>
+
+                        <a class="hidden sm:inline-flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-all duration-150"
+                            href="{% url 'account:profile' %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-6 h-6 text-gray-700">
+                                <path fill-rule="evenodd" d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 4a3 3 0 100 6 3 3 0 000-6zm0 14a8 8 0 01-6.32-3.06c.03-2.1 4.22-3.26 6.32-3.26s6.29 1.16 6.32 3.26A8 8 0 0112 20z" clip-rule="evenodd"/>
+                            </svg>
+                        </a>
+
                     {% else %}
                         <a class="hidden mr-1 items-center justify-center rounded-xl bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 transition-all duration-150 hover:bg-gray-50 sm:inline-flex"
                             href="{% url 'account:signup' %}">
@@ -109,13 +116,11 @@
 
             </div>
         </nav>
-
-
+        
         <!-- main -->
         <main class="py-6 px-8">
 
             <!-- Start error message -->
-
             {% if messages %}
 
                 <ul class="messages text-center py-2">
@@ -147,9 +152,7 @@
         
             {% endif %}
 
-            <!-- End error message -->
-
-
+            <!-- start content -->
             {% block content %}
             {% endblock %}
 

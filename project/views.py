@@ -10,7 +10,7 @@ from .models import Project, ProjectNote
 
 # Project
 
-@login_required
+@login_required(login_url='/login/')
 def projects(request):
 
     projects_list = Project.objects.filter(created_by=request.user)
@@ -18,7 +18,7 @@ def projects(request):
     return render(request, 'project/projects.html', context)
 
 
-@login_required
+@login_required(login_url='/login/')
 def add_project(request):
 
     if request.method == 'POST':
@@ -39,7 +39,7 @@ def add_project(request):
     return render(request, 'project/add.html')
 
 
-@login_required 
+@login_required(login_url='/login/')
 def project(request, pk):
 
     project_detail = get_object_or_404(Project, created_by=request.user, pk=pk)
@@ -47,7 +47,7 @@ def project(request, pk):
     return render(request, 'project/project.html', context)
 
 
-@login_required
+@login_required(login_url='/login/')
 def edit(request, pk):
 
     project_edit = get_object_or_404(Project, pk=pk, created_by=request.user)
@@ -68,7 +68,7 @@ def edit(request, pk):
     return render(request, 'project/edit.html', context)
 
 
-@login_required 
+@login_required(login_url='/login/') 
 def delete(request, pk):
 
     project = get_object_or_404(Project, pk=pk, created_by=request.user)
@@ -79,7 +79,7 @@ def delete(request, pk):
 
 # Files
 
-@login_required
+@login_required(login_url='/login/')
 def upload_file(request, project_id):
     # Ensure the user has access to the project
     project = get_object_or_404(Project, pk=project_id, created_by=request.user)
@@ -106,9 +106,9 @@ def upload_file(request, project_id):
     })
 
 
-@login_required 
+@login_required(login_url='/login/')
 def delete_file(request, project_id, pk):
-
+    
     project = get_object_or_404(Project, pk=project_id, created_by=request.user)
     projectfile = project.files.get(pk=pk)
     projectfile.delete()
@@ -121,7 +121,7 @@ def delete_file(request, project_id, pk):
 
 # Notes
 
-@login_required
+@login_required(login_url='/login/')
 def add_note(request, project_id):
 
     project = get_object_or_404(Project, pk=project_id, created_by=request.user)
@@ -146,7 +146,7 @@ def add_note(request, project_id):
     })
 
 
-@login_required
+@login_required(login_url='/login/')
 def note_detail(request, project_id, pk):
     try:
         project = get_object_or_404(Project, pk=project_id, created_by=request.user)
@@ -166,7 +166,7 @@ def note_detail(request, project_id, pk):
     })
 
 
-@login_required
+@login_required(login_url='/login/')
 def note_edit(request, project_id, pk):
     
     project = get_object_or_404(Project, pk=project_id, created_by=request.user)
@@ -191,7 +191,7 @@ def note_edit(request, project_id, pk):
     })
 
 
-@login_required
+@login_required(login_url='/login/')
 def note_delete(request, project_id, pk):
 
     project = get_object_or_404(Project, pk=project_id, created_by=request.user)

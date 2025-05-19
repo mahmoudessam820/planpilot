@@ -1,5 +1,7 @@
 from pathlib import Path
 
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,6 +22,7 @@ AUTH_USER_MODEL = 'account.User'
 # Application definition
 
 INSTALLED_APPS = [
+    # Default apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -34,13 +37,20 @@ INSTALLED_APPS = [
     'todolist.apps.TodolistConfig',
     'task.apps.TaskConfig',
 
-    # 3rd party apps
+    # third-party apps
     'social_django',
     'django_extensions',
+    'debug_toolbar',
 
 ]
 
+# Debug Toolbar settings
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
+
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware', # Debug toolbar middleware
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -53,11 +63,11 @@ MIDDLEWARE = [
 
 # Social Auth
 
-AUTHENTICATION_BACKENDS = [
-    'social_core.backends.facebook.FacebookOAuth2',
-    'social_core.backends.twitter.TwitterOAuth',
-    'social_core.backends.google.GoogleOAuth2',
-]
+# AUTHENTICATION_BACKENDS = [
+#     'social_core.backends.facebook.FacebookOAuth2',
+#     'social_core.backends.twitter.TwitterOAuth',
+#     'social_core.backends.google.GoogleOAuth2',
+# ]
 
 
 # Social Auth keys
