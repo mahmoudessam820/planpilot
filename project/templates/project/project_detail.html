@@ -1,5 +1,5 @@
 {% extends 'main/base.html' %}
-
+{% load static %}
 
 {% block content %}
 
@@ -43,6 +43,8 @@
 
     </div>
 
+    <!-- ToDo -->
+
     <div class="container relative mb-12 max-w-6xl px-10 mx-auto xl:px-0 mt-5">
 
         <h3 class="mb-5 text-3xl font-extrabold leading-tight text-gray-900">Todo List</h3>
@@ -64,6 +66,7 @@
             {% endfor %}
         </div>
 
+        <!-- Notes -->
 
         <h3 class="mb-5 text-3xl font-extrabold leading-tight text-gray-900">Notes</h3>
 
@@ -82,6 +85,7 @@
             {% endfor %}
         </div>
 
+        <!-- Files -->
 
         <h3 class="mb-5 text-3xl font-extrabold leading-tight text-gray-900">Files</h3>
 
@@ -91,14 +95,18 @@
 
                     <div class="w-7/12 pl-3 p-3 text-text1 flex flex-col justify-center">
                         
-                        <p class="text-base mb-2 font-bold truncate">{{ projectfile.name }}t</p>
-                        
                         <div class="text-xs text-primary mb-2">
                             <a class="flex items-center">
-                                <img src="https://images.unsplash.com/photo-1477118476589-bff2c5c4cfbb?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=200&q=200" class="rounded-full h-8 w-8 mr-2 object-cover" />
-                                <span class="font-bold tracking-wide text-sm text-pink-400">Jane Doe</span>
+                                {% if user.profile.avatar %}
+                                    <img src="{{ user.profile.avatar.url }}" class="rounded-full h-8 w-8 mr-2 object-cover" />
+                                {% else %}
+                                    <img src="{% static 'default_images/default_avatar.png' %}" class="rounded-full h-8 w-8 mr-2 object-cover" />
+                                {% endif %}
+                                <span class="font-bold tracking-wide text-sm text-black-400">{{ user.name }}</span>
                             </a>
                         </div>
+
+                        <p class="text-base mb-2 font-medium truncate">File Name: {{ projectfile.name }}</p>
                         
                         <div class="text-sm text-text2 tracking-wider">
                         
@@ -115,7 +123,7 @@
                     </div>
 
                     <div class="lg:flex flex w-5/12 p-2">
-                        <img src="https://source.unsplash.com/1600x900/?nature,water" class="rounded-xl object-cover w-full h-full"/>
+                        <img src="{% static 'default_images/file-2.svg' %}" class="rounded-xl object-cover w-full h-full"/>
                     </div>
 
             </div>

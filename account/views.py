@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 PROFILE_URL = 'account:profile'
 
 FORM_MESSAGES = {
-    'success': 'Account created successfully.',
+    'success': 'Account created successfully, Please log in.',
     'login_success': 'Login successful.',
     'profile_update': 'Your profile has been updated successfully.'
     

@@ -1,88 +1,181 @@
+import logging
+from django.urls import reverse
 from django.contrib import messages
+from django.db import IntegrityError, transaction
 from django.core.exceptions import ValidationError
-from django.core.exceptions import PermissionDenied
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404 
+from django.views.decorators.http import require_http_methods
+from django.contrib.auth.decorators import login_required, permission_required
+from django.shortcuts import render, redirect, get_object_or_404
 
-from .forms import ProjectFileForm
-from .models import Project, ProjectNote
+from .forms import ProjectFileForm, ProjectForm, ProjectNoteForm
+from .models import Project
+
+
+logger = logging.getLogger(__name__)
+
+
+# Constants
+FORM_MESSAGES = {
+    'project_created': 'Project created successfully.',
+    'update_project': 'Project updated successfully.',
+    'project_deleted': 'Project deleted successfully.',
+    'upload_file': 'File uploaded successfully.',
+    'delete_file': 'File deleted successfully.',
+    'note_created': 'Note created successfully',
+    'note_updated': 'Note updated successfully',
+    'note_deleted': 'Note deleted successfully',
+}
 
 
 # Project
 
 @login_required(login_url='/login/')
+@require_http_methods(["GET"])
 def projects(request):
+    """
+    View to display a list of projects created by the authenticated user.
+    Projects are always sorted by creation date (newest first).
+    """
+    try:
+        # Get projects sorted by created_at (newest first)
+        projects_list = Project.objects.select_related('created_by') \
+                                    .filter(created_by=request.user) \
+                                    .order_by('-created_at')
+    except Exception as e:
+        logger.error(f"Error fetching projects: {str(e)}")
+        messages.error(request, 'An error occurred while fetching projects.')
+        projects_list = Project.objects.none()  # Return empty queryset
 
-    projects_list = Project.objects.filter(created_by=request.user)
-    context = {'projects': projects_list}
+    context = {
+        'projects': projects_list
+    }
+
     return render(request, 'project/projects.html', context)
 
 
 @login_required(login_url='/login/')
+@require_http_methods(["GET", "POST"])
+@permission_required('project.add_project', raise_exception=True)
 def add_project(request):
-
+    """
+    View to handle project creation.
+    Renders a form for GET requests and processes.
+    form submission for POST requests.
+    """
     if request.method == 'POST':
-
-        name = request.POST.get('name', '')
-        description = request.POST.get('description', '')
-
-        if not name:
-            messages.info(request, 'Project name is required')
-        else:
+        form = ProjectForm(request.POST)
+        if form.is_valid():
             try:
-                Project.objects.create(name=name, description=description, created_by=request.user)
-                messages.success(request, 'Project created successfully')
-                return redirect('/projects/')
+                project = form.save(commit=False)
+                project.created_by = request.user
+                project.save()
+                logger.info(
+                    f"New project created: {project.name} by "
+                    f"{request.user.email}"
+                )
+                messages.success(request, FORM_MESSAGES['project_created'])
+                return redirect(reverse('project:projects'))
             except ValidationError as e:
+                logger.error(f"Failed to create project: {str(e)}")
                 messages.error(request, f'Failed to create project: {str(e)}')
+        else:
+            logger.warning(f"Failed project creation attempt: {form.errors}")
+            messages.error(request, form.errors.as_text())
+    else:
+        form = ProjectForm()
 
-    return render(request, 'project/add.html')
-
-
-@login_required(login_url='/login/')
-def project(request, pk):
-
-    project_detail = get_object_or_404(Project, created_by=request.user, pk=pk)
-    context = {'project': project_detail}
-    return render(request, 'project/project.html', context)
+    return render(request, 'project/add.html', {'form': form})
 
 
 @login_required(login_url='/login/')
+@require_http_methods(["GET"])
+def project_detail(request, pk):
+    """
+    View to display details of a single project owned by the authenticated user.
+    """
+    try:
+        project_detail = get_object_or_404(
+            Project.objects.select_related('created_by'),
+            created_by=request.user,
+            pk=pk
+        )
+        context = {'project': project_detail}
+    except Exception as e:
+        logger.error(f'Error fetching project {pk}: {str(e)}', exc_info=True)
+        messages.error(request, 'An error occurred while fetching the project.')
+
+    return render(request, 'project/project_detail.html', context)
+
+
+@login_required(login_url='/login/')
+@require_http_methods(["GET", "POST"])
 def edit(request, pk):
-
-    project_edit = get_object_or_404(Project, pk=pk, created_by=request.user)
+    """
+    View to edit an existing project. Only the project creator can edit it.
+    On GET, renders the edit form. On POST, validates and saves the project.
+    Redirects to the project list on succere-renders the form with errors.
+    """
+    project_edit = get_object_or_404(
+        Project.objects.select_related('created_by'),
+        pk=pk,
+        created_by=request.user
+    )
+    form = ProjectForm(
+            request.POST if request.method == 'POST' else None,
+            instance=project_edit
+    )
 
     if request.method == 'POST':
-        name = request.POST.get('name', '')
-        description = request.POST.get('description', '')
-
-        if name:
-            project_edit.name = name
-            project_edit.description = description
-            project_edit.save()
-            return redirect('/projects/')
+        if form.is_valid():
+            form.save()
+            logger.info(
+                f"Project updated: {project_edit.name} by {request.user.email}"
+            )
+            messages.success(request, FORM_MESSAGES['update_project'])
+            return redirect(reverse('project:projects'))
         else:
-            messages.info(request, 'Project name is required')
+            logger.warning(f"Failed project update attempt: {form.errors}")
+            messages.error(request, form.errors.as_text())
 
-    context = {'project': project_edit}
+    context = {'form': form, 'project': project_edit}
     return render(request, 'project/edit.html', context)
 
 
-@login_required(login_url='/login/') 
+@login_required(login_url='/login/')
+@require_http_methods(["GET", "POST"])
 def delete(request, pk):
-
-    project = get_object_or_404(Project, pk=pk, created_by=request.user)
-    project.delete()
-
-    return redirect('/projects/')
+    """
+    View to delete a project owned by the authenticated user.
+    On GET, renders a confirmation template. On POST, deletes the project and redirects to the project list.
+    """
+    project = get_object_or_404(
+        Project.objects.select_related('created_by'),
+        pk=pk, created_by=request.user
+    )
+    try:
+        with transaction.atomic():
+            project.delete()
+        messages.success(request, FORM_MESSAGES['project_deleted'])
+        return redirect(reverse('project:projects'))
+    except Exception:
+        messages.error(request, 'An error occurred while deleting the project.')
+        return redirect(reverse('project:projects'))
 
 
 # Files
 
 @login_required(login_url='/login/')
+@require_http_methods(["GET", "POST"])
 def upload_file(request, project_id):
-    # Ensure the user has access to the project
-    project = get_object_or_404(Project, pk=project_id, created_by=request.user)
+    """
+    Handles file uploads for a specific project.
+    GET: Displays the file upload form.
+    POST: Processes the file upload and associates it with the project.
+    """
+    project = get_object_or_404(
+        Project.objects.select_related('created_by'),
+        pk=project_id
+    )
 
     if request.method == 'POST':
         form = ProjectFileForm(request.POST, request.FILES)
@@ -90,13 +183,11 @@ def upload_file(request, project_id):
             projectfile = form.save(commit=False)
             projectfile.project = project
             projectfile.save()
-            messages.success(request, 'File uploaded successfully.')
+            messages.success(request, FORM_MESSAGES['upload_file'])
             return redirect(f'/projects/{project_id}/')
         else:
-            # If form is not valid, show error messages
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f'{field}: {error}')
+            logger.warning(f"Failed file upload attempt: {form.errors}")
+            messages.error(request, form.errors.as_text())
             return redirect(f'/projects/{project_id}/files/upload/')
     else:
         form = ProjectFileForm()
@@ -107,14 +198,22 @@ def upload_file(request, project_id):
 
 
 @login_required(login_url='/login/')
+@require_http_methods(["GET"])
 def delete_file(request, project_id, pk):
-    
-    project = get_object_or_404(Project, pk=project_id, created_by=request.user)
-    projectfile = project.files.get(pk=pk)
+    """
+    Deletes a file from a project if the user is authenticated and owns the project.
+    """
+    project = get_object_or_404(
+        Project, pk=project_id,
+        created_by=request.user
+    )
+    projectfile = get_object_or_404(project.files, pk=pk)
+
     projectfile.delete()
-    
-    messages.success(request, 'File deleted successfully')
-    
+    logger.info(f"User {request.user} deleted file {projectfile.pk} from project {project_id}")
+
+    messages.success(request, FORM_MESSAGES['delete_file'])
+
     return redirect(f'/projects/{project_id}/')
 
 
@@ -122,80 +221,102 @@ def delete_file(request, project_id, pk):
 # Notes
 
 @login_required(login_url='/login/')
+@require_http_methods(["GET", "POST"])
 def add_note(request, project_id):
-
-    project = get_object_or_404(Project, pk=project_id, created_by=request.user)
+    """
+    Add a note to a project for the authenticated user.
+    """
+    project = get_object_or_404(
+        Project, pk=project_id,
+        created_by=request.user
+    )
 
     if request.method == 'POST':
-
-        name = request.POST.get('name', '')
-        body = request.POST.get('body', '')
-
-        if not (name and body):
-            messages.info(request, 'Note name and body required')
-        else:
+        form = ProjectNoteForm(request.POST)
+        if form.is_valid():
             try:
-                ProjectNote.objects.create(name=name, body=body, project=project)
-                messages.success(request, 'Note created successfully')
+                note = form.save(commit=False)
+                note.project = project
+                note.save()
+                messages.success(request, FORM_MESSAGES['note_created'])
                 return redirect(f'/projects/{project_id}/')
-            except ValidationError as e:
-                messages.error(request, f'Failed to create project: {str(e)}')
+            except IntegrityError:
+                messages.error(request, form.errors.as_text())
+        else:
+            messages.error(request, form.errors.as_text())
+    else:
+        form = ProjectNoteForm()
 
-    return render(request, 'project/add_note.html', {
-        'project': project
-    })
+    return render(request, 'project/add_note.html', {'project': project, 'form': form})
 
 
 @login_required(login_url='/login/')
+@require_http_methods(["GET"])
 def note_detail(request, project_id, pk):
+    """
+    Display details of a specific note for a project owned by the authenticated user.
+    """
+    project = get_object_or_404(
+        Project, pk=project_id,
+        created_by=request.user
+    )
     try:
-        project = get_object_or_404(Project, pk=project_id, created_by=request.user)
-        note = project.notes.get(pk=pk)
-    except Project.DoesNotExist:
-        messages.error(request, "Project does not exist")
-    except PermissionDenied:
-        messages.error(request, 'You do not have permission to access this project.')
-        return redirect('/projects/')
-    except Exception as e:
-        messages.error(request, f"An error occurred: {str(e)}")
+        note = get_object_or_404(project.notes, pk=pk)
+    except project.notes.model.MultipleObjectsReturned:
+        logger.error(f"Multiple notes found with pk={pk} for project_id={project_id}")
+        messages.error(request, 'An error occurred while retrieving the note.')
         return redirect('/projects/')
 
-    return render(request, 'project/note_detail.html', {
-        'project': project,
-        'note': note
-    })
+    return render(request, 'project/note_detail.html', {'project': project, 'note': note})
 
 
 @login_required(login_url='/login/')
+@require_http_methods(["GET", "POST"])
 def note_edit(request, project_id, pk):
-    
-    project = get_object_or_404(Project, pk=project_id, created_by=request.user)
-    note = project.notes.get(pk=pk)
+    """
+    Edit a note for a project owned by the authenticated user.
+    """
+
+    project = get_object_or_404(
+        Project, pk=project_id,
+        created_by=request.user
+    )
+    note = get_object_or_404(project.notes, pk=pk)
 
     if request.method == 'POST':
-        name = request.POST.get('name', '')
-        body = request.POST.get('body', '')
-
-        if name and body:
-            note.name = name
-            note.body = body
-            note.save()
-            messages.success(request, "Note updated successfully")
-            return redirect(f'/projects/{project_id}/')
+        form = ProjectNoteForm(request.POST, instance=note)
+        if form.is_valid():
+            try:
+                form.save()
+                messages.success(request, FORM_MESSAGES['note_upddated'])
+                return redirect(f'/projects/{project_id}/')
+            except IntegrityError:
+                logger.error(f"Integrity error updating note pk={pk} for project_id={project_id}")
+                messages.error(request, form.errors.as_text())
         else:
-            messages.error(request, "Note not updated")
+            messages.error(request, form.errors.as_text())
+    else:
+        form = ProjectNoteForm(instance=note)
 
-    return render(request, 'project/note_edit.html', {
-        'project': project,
-        'note': note
-    })
+    return render(request, 'project/note_edit.html', {'project': project, 'note': note, 'form': form})
 
 
 @login_required(login_url='/login/')
 def note_delete(request, project_id, pk):
-
-    project = get_object_or_404(Project, pk=project_id, created_by=request.user)
+    """
+    Delete a note from a project owned by the authenticated user..
+    """
+    project = get_object_or_404(
+        Project, pk=project_id,
+        created_by=request.user
+    )
     note = get_object_or_404(project.notes, pk=pk)
-    note.delete()
+
+    try:
+        note.delete()
+        messages.success(request, FORM_MESSAGES['note_deleted'])
+    except IntegrityError:
+        logger.error(f"IntegrityError deleting note pk={pk} for project_id={project_id}")
+        messages.error(request, 'Failed to delete note due to a database error.')
 
     return redirect(f'/projects/{project_id}/')

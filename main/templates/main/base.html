@@ -36,12 +36,19 @@
                                 Logout
                         </a>
 
-                        <a class="hidden sm:inline-flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-all duration-150"
-                            href="{% url 'account:profile' %}">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-6 h-6 text-gray-700">
-                                <path fill-rule="evenodd" d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 4a3 3 0 100 6 3 3 0 000-6zm0 14a8 8 0 01-6.32-3.06c.03-2.1 4.22-3.26 6.32-3.26s6.29 1.16 6.32 3.26A8 8 0 0112 20z" clip-rule="evenodd"/>
-                            </svg>
-                        </a>
+                        {% if user.profile.avatar %}
+                            <a class="hidden sm:inline-flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-all duration-150"
+                                href="{% url 'account:profile' %}">
+                                <img src="{{ user.profile.avatar.url }}" alt="avatar" class="w-full h-full object-cover">
+                            </a>
+                        {% else %}
+                            <a class="hidden sm:inline-flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-all duration-150"
+                                href="{% url 'account:profile' %}">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-6 h-6 text-gray-700">
+                                    <path fill-rule="evenodd" d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 4a3 3 0 100 6 3 3 0 000-6zm0 14a8 8 0 01-6.32-3.06c.03-2.1 4.22-3.26 6.32-3.26s6.29 1.16 6.32 3.26A8 8 0 0112 20z" clip-rule="evenodd"/>
+                                </svg>
+                            </a>
+                        {% endif %}
 
                     {% else %}
                         <a class="hidden mr-1 items-center justify-center rounded-xl bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 transition-all duration-150 hover:bg-gray-50 sm:inline-flex"
