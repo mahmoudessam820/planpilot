@@ -113,7 +113,7 @@ def edit(request, pk):
     """
     View to edit an existing project. Only the project creator can edit it.
     On GET, renders the edit form. On POST, validates and saves the project.
-    Redirects to the project list on succere-renders the form with errors.
+    Redirects to the project list on success or re-renders the form with errors.
     """
     project_edit = get_object_or_404(
         Project.objects.select_related('created_by'),
@@ -288,7 +288,7 @@ def note_edit(request, project_id, pk):
         if form.is_valid():
             try:
                 form.save()
-                messages.success(request, FORM_MESSAGES['note_upddated'])
+                messages.success(request, FORM_MESSAGES['note_updated'])
                 return redirect(f'/projects/{project_id}/')
             except IntegrityError:
                 logger.error(f"Integrity error updating note pk={pk} for project_id={project_id}")
