@@ -1,12 +1,14 @@
 # Plan Pilot ✈️  
 
 
-## Overview
+## What is PlanPilot?
 
-Plan Pilot  is a comprehensive project management 📅 system built on the Python Django framework, designed to streamline and enhance the project planning and execution process. It aims to provide a robust platform that empowers teams to efficiently manage tasks, collaborate seamlessly, and achieve project milestones with ease.
+PlanPilot is a web-based project management 📅 system designed to streamline and enhance the project planning and execution process. It enables teams to create projects, organize tasks into todolists, track progress, share files, and collaborate effectively through a clean, intuitive interface.
 
-<!-- demo -->
-## Example Site
+![](screenshots/user_manage.PNG)
+
+
+## Site screenshot 
 
 | ![](screenshots/home.png)| ![](screenshots/login.png) | ![](screenshots/signup.png) |
 |:---:|:---:|:---:|
@@ -19,7 +21,79 @@ Plan Pilot  is a comprehensive project management 📅 system built on the Pytho
 | **Task** | **Form** |
 
 
+## Key Features
 
+PlanPilot offers a comprehensive set of features for effective project management:
+
+| **Feature Category**     | **Capabilities**                                                                 |
+|--------------------------|----------------------------------------------------------------------------------|
+| User Authentication      | Email/password login, Social authentication (Google, Facebook, Twitter)         |
+| Project Management       | Create, view, edit, and delete projects                                          |
+| Task Organization        | Create todolists to group related tasks, Add tasks with descriptions, Mark tasks as complete |
+| File Management          | Upload and organize project-related files                                        |
+| Note Taking              | Create and manage project notes                                                  |
+| Collaboration            | Share projects with team members                                                 |
+
+## System Architecture
+
+PlanPilot follows a layered architecture pattern with clear separation of concerns, implemented using Django's Model-View-Template (MVT) pattern.
+
+![](screenshots/System_Architecture.PNG)
+
+
+## Django Applications Structure
+
+PlanPilot is organized into multiple Django applications, each responsible for specific system functionality:
+
+1. Main App: Handles core functionality and the main landing pages
+2. Account App: Manages user authentication, registration, and profile management
+3. Project App: Handles project creation, management, files, and notes
+4. Todolist App: Manages todolists within projects
+5. Task App: Handles individual task creation and management
+
+This modular organization promotes separation of concerns and makes the codebase more maintainable.
+
+
+## User Flow and Interactions
+
+The typical user journey in PlanPilot follows a hierarchical pattern that mirrors the relationship between projects, todolists, and tasks.
+
+![](screenshots/User_Flow_and_Interactions.PNG)
+
+
+## Technology Stack
+
+PlanPilot is built using modern web technologies, with Django as its core framework.
+
+| **Component**         | **Technology**                                   |
+|-----------------------|--------------------------------------------------|
+| Backend Framework     | Django                                           |
+| Frontend              | HTML, Tailwind CSS, JavaScript                   |
+| Database              | SQLite (default)                                 |
+| Authentication        | Django Authentication, Social Auth              |
+| Icons                 | Font Awesome                                     |
+| Development Tools     | Python Virtualenv                                |
+
+
+## Getting Started
+
+To set up PlanPilot for development or testing:
+
+1. Clone the repository
+2. Set up a Python virtual environment
+3. Install dependencies from requirements.txt
+4. Apply database migrations
+5. Run the Django development server
+
+
+## System Requirements
+
+The PlanPilot system requires:
+
+- Python 3.6 or higher
+- Pip (Python package installer)
+- Virtual environment tool (recommended)
+- Modern web browser (Chrome, Firefox, Safari, Edge)
 
 ## Getting Started
 
@@ -32,49 +106,6 @@ Ensure that you have the following prerequisites installed on your system:
 - Python (version 3.6 or higher)
 - Pip (Python package installer)
 - Virtualenv (optional but recommended for virtual environment setup)
-
-#### Installation
-
-1. Clone the repository to your local machine:
-```
-git clone https://github.com/mahmoudessam820/planpilot.git
-```
-
-2. Navigate to the project directory:
-```
-cd planpilot
-```
-
-3. Create a virtual environment (optional but recommended):
-```
-virtualenv venv
-```
-
-4. Activate the virtual environment:
-- On Windows:
-    ```
-    env\Scripts\activate.bat
-    ```
-- On macOS/Linux:
-    ```
-    source venv/bin/activate
-    ```
-
-5. Install the project dependencies:
-```
-pip install -r requirements.txt
-```
-
-## Technologies Used
-
-**Plan Pilot** leverages the following technologies and frameworks:
-
-1. **Django** A high-level Python web framework that encourages rapid development and clean, pragmatic design. It provides built-in features for tasks such as database migrations, URL routing, and template rendering.
-
-2. **Tailwind CSS** A highly customizable, utility-first CSS framework that enables the creation of modern and responsive user interfaces. Plan Pilot utilizes Tailwind CSS for styling, ensuring a sleek and intuitive user experience.
-
-3. **Other Dependencies:**  Additional dependencies and libraries are listed in the `requirements.txt` file. These include tools and packages that enhance the functionality and performance of the project.
-
 
 ## Author
 
