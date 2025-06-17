@@ -9,25 +9,27 @@
 
         <h2 class="mb-5 text-2xl font-extrabold leading-tight text-gray-900">{{ task.name }}</h2>
 
-        <h6 class="mb-5 text-1xl font-extrabold leading-tight text-gray-900">
-            <strong>Status:</strong> 
-            {% if task.is_done %}
-                <span class="bg-yellow-500 text-black text-sm font-medium me-2 px-2.5 py-0.5 rounded ">Done</span>
-            {% else %}
-                <span class="bg-red-700 text-white text-sm font-medium me-2 px-2.5 py-0.5 rounded ">Todo</span>
-            {% endif %}
-        </h6>
+        <form method="POST" action="{% url 'task:toggle_done' project_id=project.id todolist_id=todolist.id pk=task.id %}"> 
+            {% csrf_token %}
+            
+            <h6 class="mb-5 text-1xl font-extrabold leading-tight text-gray-900">
+                <strong>
+                    Status: <span class="bg-yellow-500 text-black text-sm font-medium me-2 px-2.5 py-0.5 rounded ">{{ task.is_done|yesno:"Done,Not Done" }}</span>
+                </strong> 
+            </h6>
 
-        <div class="flex-1 ">
-            <div class="flex flex-wrap ">
-                {% if not task.is_done %}
-                    <a href="?is_done=yes" class="bg-black rounded-lg text-white text-xs text-center self-center px-3 py-2 my-2 mx-2"> Mark as done</a>
-                {% endif %}
-                <a href="{% url 'task:edit' task.project_id task.todolist_id task.id %}" class="bg-red-700 rounded-lg text-white text-xs text-center self-center px-3 py-2 my-2 mx-2"> Edit</a>
-                <a href="{% url 'task:delete' task.project_id task.todolist_id task.id %}" class="bg-red-800 rounded-lg text-white text-xs text-center self-center px-3 py-2 my-2 mx-2"> Delete</a>
+            <div class="flex-1 ">
+                <div class="flex flex-wrap ">
+                    {% if not task.is_done %}
+                        <button type="submit" class="bg-black rounded-lg text-white text-xs text-center self-center px-3 py-2 my-2 mx-2">Toggle Done</button>
+                        <a href="{% url 'task:edit' task.project_id task.todolist_id task.id %}" class="bg-red-700 rounded-lg text-white text-xs text-center self-center px-3 py-2 my-2 mx-2"> Edit</a>
+                    {% endif %}
+                    <a href="{% url 'task:delete' task.project_id task.todolist_id task.id %}" class="bg-red-800 rounded-lg text-white text-xs text-center self-center px-3 py-2 my-2 mx-2"> Delete</a>
+                </div>
+                <hr class="my-2 mb-3">
             </div>
-            <hr class="my-2 mb-3">
-        </div>
+
+        </form>
 
         {% if task.description %}
 

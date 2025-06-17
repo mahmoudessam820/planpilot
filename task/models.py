@@ -1,9 +1,9 @@
-import uuid 
+import uuid
 from django.db import models
-    
-from account.models import User 
-from project.models import Project 
-from todolist.models import Todolist 
+
+from account.models import User
+from project.models import Project
+from todolist.models import Todolist
 
 
 class Task(models.Model):
