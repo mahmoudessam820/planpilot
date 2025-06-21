@@ -1,81 +1,125 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, render, redirect 
+import logging
+from django.urls import reverse
 from django.contrib import messages
+from sqlite3 import IntegrityError
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, render, redirect
+from django.views.decorators.http import require_http_methods
 
-from project.models import Project 
-from .models import Todolist 
+from project.models import Project
+from .models import Todolist
+from .forms import TodolistForm, EditTodolistForm
 
 
+# configure logging
+logger = logging.getLogger(__name__)
 
-@login_required 
+# form messages
+FORM_MESSAGES = {
+    'success': 'To-do list created successfully.',
+    'update': 'To-do list updated successfully.',
+    'delete': 'To-do list deleted successfully.',
+}
+
+
+@login_required(login_url='/login')
+@require_http_methods(["GET", "POST"])
 def add(request, project_id):
-
-    try:
-        project = get_object_or_404(Project, created_by=request.user, pk=project_id)
-    except Project.DoesNotExist:
-        messages.error(request, "Project does not exist.")
-        return redirect('/porject/')
+    """
+    Add a to-do list to a project owned by the authenticated user.
+    """
+    project = get_object_or_404(
+        Project,
+        pk=project_id,
+        created_by=request.user
+    )
 
     if request.method == 'POST':
-        name = request.POST.get('name', '')
-        description = request.POST.get('description', '')
-        if name:
-            Todolist.objects.create(project=project, name=name, description=description, created_by=request.user)
-            return redirect(f'/projects/{project_id}/')
+        form = TodolistForm(request.POST)
+        if form.is_valid():
+            try:
+                todolist = form.save(commit=False)
+                todolist.project = project
+                todolist.created_by = request.user
+                todolist.save()
+                messages.success(request, FORM_MESSAGES['success'])
+                return redirect(f'/projects/{project_id}/')
+            except IntegrityError as e:
+                logger.error(f"Error creating to-do list for project_id={project_id}: {str(e)}")
+                messages.error(request, form.errors.as_text())
         else:
-            messages.info(request, 'Please provide a name for the todo list') 
+            messages.error(request, form.errors.as_text())
+    else:
+        form = TodolistForm()
 
     context = {'project': project}
 
-    return render(request, 'todolist/add.html', context) 
+    return render(request, 'todolist/add.html', context)
 
 
-@login_required 
+@login_required(login_url='/login')
+@require_http_methods(["GET"])
 def todolist(request, project_id, pk):
+    """
+    Display details of a to-do list within a project owned by the authenticated user.
+    """
+    project = get_object_or_404(Project, pk=project_id, created_by=request.user)
+    todolist = get_object_or_404(Todolist.objects.prefetch_related('tasks'), pk=pk, project=project)
+
     try:
-        filtered_project = get_object_or_404(Project, created_by=request.user, pk=project_id)
-        filtered_todolist = get_object_or_404(Todolist, project=filtered_project, pk=pk)
         return render(request, 'todolist/todolist.html', {
-            'project': filtered_project,
-            'todolist': filtered_todolist
+            'project': project,
+            'todolist': todolist,
         })
-    except (Project.DoesNotExist, Todolist.DoesNotExist):
-        messages.error(request, 'The requested project or todo list does not exist.')
-        return redirect('/porject/')
-    
+    except Todolist.MultipleObjectsReturned:
+        logger.error(f"Multiple to-do lists found with pk={pk} for project_id={project_id}")
+        messages.error(request, 'An error occurred while retrieving the to-do list.')
+        return redirect(reverse('project'))
 
-@login_required 
+
+@login_required(login_url='/login')
+@require_http_methods(["GET", "POST"])
 def edit(request, project_id, pk):
-    try:
-        filtered_project = get_object_or_404(Project, created_by=request.user, pk=project_id)
-        filtered_todolist = get_object_or_404(Todolist, project=filtered_project, pk=pk)
+    """
+    Edit a to-do list within a project owned by the authenticated user.
+    """
+    project = get_object_or_404(Project, pk=project_id, created_by=request.user)
+    todolist = get_object_or_404(Todolist, pk=pk, project=project)
 
-        if request.method == 'POST':
-            name = request.POST.get('name', '')
-            description = request.POST.get('description', '')
-
-            if name:
-                filtered_todolist.name = name
-                filtered_todolist.description = description
-                filtered_todolist.save()
-
+    if request.method == 'POST':
+        form = EditTodolistForm(request.POST, instance=todolist)
+        if form.is_valid():
+            try:
+                form.save()
+                messages.success(request, FORM_MESSAGES['update'])
                 return redirect(f'/projects/{project_id}/')
-            else:
-                messages.error(request, 'Name is required.')
-    except Todolist.DoesNotExist:
-        messages.error(request, 'Todolist does not exist.')
-        return redirect('/porject/')
+            except IntegrityError as e:
+                logger.error(f"Error updating to-do list pk={pk} for project_id={project_id}: {str(e)}")
+                messages.error(request, 'Failed to update to-do list due to a database error.')
+        else:
+            messages.error(request, form.errors.as_text())
+    else:
+        form = EditTodolistForm(instance=todolist)
 
     return render(request, 'todolist/edit.html', {
-            'project': filtered_project,
-            'todolist': filtered_todolist
-        })
+        'project': project,
+        'todolist': todolist
+    })
 
 
-@login_required 
+@login_required(login_url='/login')
 def delete(request, project_id, pk):
+    """
+    Delete a to-do list from a project owned by the authenticated user.
+    """
+    project = get_object_or_404(Project, pk=project_id, created_by=request.user)
+    todolist = get_object_or_404(Todolist, pk=pk, project=project)
 
-    project = get_object_or_404(Project, created_by=request.user, pk=project_id)
-    todolist = get_object_or_404(Todolist, project=project, pk=pk)
-    todolist.delete()
+    try:
+        todolist.delete()
+        messages.success(request, FORM_MESSAGES['delete'])
+    except IntegrityError:
+        logger.error(f"IntegrityError deleting to-do list pk={pk} for project_id={project_id}")
+        messages.error(request, 'Failed to delete to-do list due to a database error.')
+
     return redirect(f'/projects/{project_id}/')
