@@ -2,7 +2,7 @@ from django import forms
 from django.forms import ValidationError
 from django.core.validators import RegexValidator
 from django.core.validators import validate_image_file_extension
-from django.contrib.auth import authenticate 
+from django.contrib.auth import authenticate
 
 from .models import UserProfile, User
 
@@ -11,15 +11,25 @@ from .models import UserProfile, User
 class SignUpForm(forms.ModelForm):
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Confirm Password', widget=forms.PasswordInput)
-    
+
     class Meta:
         model = User
         fields = ['name', 'email']
 
+    def clean_name(self):
+        name = self.cleaned_data['name'].strip()
+        if not name:
+            raise forms.ValidationError('Name cannot be empty.')
+        if len(name) < 2:
+            raise forms.ValidationError('Name must be at least 2 characters long.')
+        if len(name) > 150:
+            raise forms.ValidationError('Name cannot exceed 150 characters.')
+        return name
+
     def clean_email(self):
         email = self.cleaned_data['email'].lower()
         if User.objects.filter(email=email).exists():
-            raise forms.ValidationError('This email is already registered.')
+            raise forms.ValidationError('A user with that email already exists.')
         return email
 
     def clean_password1(self):
@@ -33,7 +43,7 @@ class SignUpForm(forms.ModelForm):
         password1 = cleaned_data.get('password1')
         password2 = cleaned_data.get('password2')
         if password1 and password2 and password1 != password2:
-            raise forms.ValidationError({'password2': 'Passwords do not match.'})
+            raise forms.ValidationError({'password2': 'The two password fields did not match.'})
         return cleaned_data
 
     def save(self, commit=True):
@@ -63,6 +73,7 @@ class LoginForm(forms.Form):
                 raise forms.ValidationError('Invalid email or password.')
             cleaned_data['user'] = user  # Store the authenticated user
         return cleaned_data
+
 
 # User profile validation form 
 class UserProfileForm(forms.ModelForm):

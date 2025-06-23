@@ -2,12 +2,14 @@ asgiref==3.7.2
 certifi==2024.2.2
 cffi==1.16.0
 charset-normalizer==3.3.2
+coverage==7.9.1
 cryptography==42.0.7
 defusedxml==0.8.0rc2
 Django==5.0.1
 django-countries==7.6.1
 django-debug-toolbar==5.1.0
 django-extensions==3.2.3
+django-ratelimit==4.1.0
 idna==3.7
 MarkupSafe==2.1.5
 oauthlib==3.2.2

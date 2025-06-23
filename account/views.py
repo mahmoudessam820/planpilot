@@ -1,16 +1,18 @@
 import logging
+
 from django.urls import reverse
 from django.contrib import messages
 from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login as auth_login, logout as auth_logout 
+from django.contrib.auth import login as auth_login, logout as auth_logout
+from django.views.decorators.http import require_http_methods
 
 from .models import UserProfile
 from .forms import UserProfileForm, SignUpForm, LoginForm
 
-    
+
 logger = logging.getLogger(__name__)
 
 # Constants
@@ -20,10 +22,11 @@ FORM_MESSAGES = {
     'success': 'Account created successfully, Please log in.',
     'login_success': 'Login successful.',
     'profile_update': 'Your profile has been updated successfully.'
-    
+
 }
 
 
+@require_http_methods(["GET", "POST"])
 def signup(request):
     """
     Handles user signup by creating a new User instance.
@@ -47,6 +50,7 @@ def signup(request):
     return render(request, 'account/signup.html', {'form': form})
 
 
+@require_http_methods(["GET", "POST"])
 def login(request):
     """
     Handles user login by authenticating email and password.
@@ -71,7 +75,8 @@ def login(request):
     return render(request, 'account/login.html', {'form': form})
 
 
-@login_required(login_url='/login/')
+@login_required(login_url='/login')
+@require_http_methods(["GET", "POST"])
 def profile(request):
     return render(request, 'account/profile_page.html', {'user': request.user})
 
@@ -90,7 +95,8 @@ def handle_profile_form(request, profile):
     return form
 
 
-@login_required
+@login_required(login_url='/login')
+@require_http_methods(["GET", "POST"])
 def edit_profile(request):
     """Handle user profile editing, including form validation and saving."""
     try:
