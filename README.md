@@ -18,7 +18,9 @@ PlanPilot is a web-based project management 📅 system designed to streamline a
 | ![](screenshots/contact.png) | ![](screenshots/teams.png) | ![](screenshots/todo.png) |
 | **Contact** | **Teams** | **Todo** |
 | ![](screenshots/task.png) | ![](screenshots/form.png) |
-| **Task** | **Form** |
+| **Task** | **Form** | 
+| ![](screenshots/profile.png) | ![](screenshots/profile-form.png) |
+| **Profile** | **Profile-Form** | 
 
 
 ## Key Features
