@@ -85,7 +85,6 @@ class UserProfileForm(forms.ModelForm):
             'youtube', 'facebook', 'instagram', 'x'
         ]
 
-    # Custom validation for the avatar and cover photo fields
     def clean_avatar(self):
         avatar = self.cleaned_data.get('avatar')
         if avatar:
@@ -108,9 +107,10 @@ class UserProfileForm(forms.ModelForm):
                 raise forms.ValidationError('Cover photo must be an image file (e.g., PNG, JPG).')
         return cover_photo
 
-    # Custom validation for the phone number field
     def clean_phone_number(self):
         phone_number = self.cleaned_data.get('phone_number')
+        if len(phone_number) < 10:
+            raise forms.ValidationError('Phone number must be at least 10 digits long.')
         if phone_number:
             # Regex to validate phone number format
             phone_regex = RegexValidator(regex=r'^\+?1?\d{9,15}$')
@@ -119,4 +119,10 @@ class UserProfileForm(forms.ModelForm):
             except ValidationError:
                 raise forms.ValidationError("Phone number must be entered in the format: '+1234567890'. Up to 15 digits allowed.")
         return phone_number
+
+    def clean_bio(self):
+        bio = self.cleaned_data.get('bio')
+        if bio and len(bio) > 1000:
+            raise forms.ValidationError('Bio cannot exceed 1000 characters.')
+        return bio
 

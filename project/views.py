@@ -1,4 +1,5 @@
 import logging
+
 from django.urls import reverse
 from django.contrib import messages
 from django.db import IntegrityError, transaction
@@ -29,7 +30,7 @@ FORM_MESSAGES = {
 
 # Project
 
-@login_required(login_url='/login/')
+@login_required(login_url='/login')
 @require_http_methods(["GET"])
 def projects(request):
     """

@@ -21,7 +21,7 @@ PROFILE_URL = 'account:profile'
 FORM_MESSAGES = {
     'success': 'Account created successfully, Please log in.',
     'login_success': 'Login successful!',
-    'profile_update': 'Your profile has been updated successfully.'
+    'profile_update': 'Profile updated successfully!'
 
 }
 
@@ -87,8 +87,11 @@ def handle_profile_form(request, profile):
         form = UserProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
+            logger.info(f"Profile updated for user: {profile.user.email}")
             messages.success(request, FORM_MESSAGES['profile_update'])
             return redirect(reverse(PROFILE_URL))
+        # If form is invalid, log the error and return the form
+        logger.warning(f"Profile update failed: {form.errors}")
         messages.error(request, form.errors.as_text())
     else:
         form = UserProfileForm(instance=profile)
@@ -105,15 +108,18 @@ def edit_profile(request):
         try:
             profile = UserProfile.objects.create(user=request.user)
         except IntegrityError:
+            logger.error(f"IntegrityError creating profile for user: {request.user.email}")
             messages.error(request, 'Unable to retrieve or create profile.')
             return redirect(reverse(PROFILE_URL))
 
     # Ensure user owns the profile
     if profile.user != request.user:
+        logger.error(f"Unauthorized access attempt to profile by user: {request.user.email}")
         messages.error(request, 'Unauthorized access.')
         return redirect(reverse(PROFILE_URL))
 
     form = handle_profile_form(request, profile)
+
     if isinstance(form, HttpResponse):  # Redirect case
         return form
 
