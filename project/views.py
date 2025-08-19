@@ -156,9 +156,11 @@ def delete(request, pk):
     try:
         with transaction.atomic():
             project.delete()
+        logger.info(f"Project {project.name} deleted by {request.user.email}")
         messages.success(request, FORM_MESSAGES['project_deleted'])
         return redirect(reverse('project:projects'))
     except Exception:
+        logger.error(f"Failed to delete project {project.name} by {request.user.email}")
         messages.error(request, 'An error occurred while deleting the project.')
         return redirect(reverse('project:projects'))
 

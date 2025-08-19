@@ -1,15 +1,10 @@
 import logging
-import uuid 
+import uuid
 
+from django.urls import reverse
+from unittest.mock import patch
 from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
-from django.urls import reverse
-
-from unittest.mock import patch
-from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.messages.storage.fallback import FallbackStorage
 
 from project.models import Project
 from project.views import FORM_MESSAGES
