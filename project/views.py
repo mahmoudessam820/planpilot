@@ -3,7 +3,7 @@ import logging
 from django.urls import reverse
 from django.contrib import messages
 from django.db import IntegrityError, transaction
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, MultipleObjectsReturned
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, redirect, get_object_or_404
@@ -92,7 +92,8 @@ def add_project(request):
 @require_http_methods(["GET"])
 def project_detail(request, pk):
     """
-    View to display details of a single project owned by the authenticated user.
+    View to display details of a single project owned by the authenticated
+    user.
     """
     try:
         project_detail = get_object_or_404(
@@ -114,7 +115,8 @@ def edit(request, pk):
     """
     View to edit an existing project. Only the project creator can edit it.
     On GET, renders the edit form. On POST, validates and saves the project.
-    Redirects to the project list on success or re-renders the form with errors.
+    Redirects to the project list on success or re-renders the form with
+    errors.
     """
     project_edit = get_object_or_404(
         Project.objects.select_related('created_by'),
@@ -147,7 +149,8 @@ def edit(request, pk):
 def delete(request, pk):
     """
     View to delete a project owned by the authenticated user.
-    On GET, renders a confirmation template. On POST, deletes the project and redirects to the project list.
+    On GET, renders a confirmation template. On POST, deletes the project and
+    redirects to the project list.
     """
     project = get_object_or_404(
         Project.objects.select_related('created_by'),
@@ -189,7 +192,7 @@ def upload_file(request, project_id):
             messages.success(request, FORM_MESSAGES['upload_file'])
             return redirect(f'/projects/{project_id}/')
         else:
-            logger.warning(f"Failed file upload attempt: {form.errors}")
+            logger.warning(f"Failed file upload attempt: {form.errors.as_text()}")
             messages.error(request, form.errors.as_text())
             return redirect(f'/projects/{project_id}/files/upload/')
     else:
@@ -207,17 +210,24 @@ def delete_file(request, project_id, pk):
     Deletes a file from a project if the user is authenticated and owns the project.
     """
     project = get_object_or_404(
-        Project, pk=project_id,
+        Project,
+        pk=project_id,
         created_by=request.user
     )
+
     projectfile = get_object_or_404(project.files, pk=pk)
 
-    projectfile.delete()
-    logger.info(f"User {request.user} deleted file {projectfile.pk} from project {project_id}")
+    try:
+        with transaction.atomic():
+            projectfile.delete()
+        logger.info(f"User {request.user} deleted file from project {project_id}")
+        messages.success(request, FORM_MESSAGES['delete_file'])
+        return redirect(f'/projects/{project_id}/')
+    except Exception as e:
+        logger.error(f"Failed to delete file {pk} from project {project_id} by {request.user}: {e}")
+        messages.error(request, 'An error occurred while deleting the file.')
+        return redirect(f'/projects/{project_id}/')
 
-    messages.success(request, FORM_MESSAGES['delete_file'])
-
-    return redirect(f'/projects/{project_id}/')
 
 
 
@@ -244,8 +254,10 @@ def add_note(request, project_id):
                 messages.success(request, FORM_MESSAGES['note_created'])
                 return redirect(f'/projects/{project_id}/')
             except IntegrityError:
-                messages.error(request, form.errors.as_text())
+                logger.error(f"Integrity error saving note for project_id={project_id}")
+                messages.error(request, "Database constraint violation")
         else:
+            logger.warning(f"Failed note creation attempt for project {project_id}: {form.errors}")
             messages.error(request, form.errors.as_text())
     else:
         form = ProjectNoteForm()
@@ -263,12 +275,14 @@ def note_detail(request, project_id, pk):
         Project, pk=project_id,
         created_by=request.user
     )
+
     try:
         note = get_object_or_404(project.notes, pk=pk)
-    except project.notes.model.MultipleObjectsReturned:
+    except MultipleObjectsReturned:
+        print("MultipleObjectsReturned caught")
         logger.error(f"Multiple notes found with pk={pk} for project_id={project_id}")
         messages.error(request, 'An error occurred while retrieving the note.')
-        return redirect('/projects/')
+        return redirect('/projects/', status=302)
 
     return render(request, 'project/note_detail.html', {'project': project, 'note': note})
 
@@ -291,12 +305,14 @@ def note_edit(request, project_id, pk):
         if form.is_valid():
             try:
                 form.save()
+                logger.info(f"User {request.user} updated note pk={pk} for project {project_id}")
                 messages.success(request, FORM_MESSAGES['note_updated'])
                 return redirect(f'/projects/{project_id}/')
             except IntegrityError:
                 logger.error(f"Integrity error updating note pk={pk} for project_id={project_id}")
                 messages.error(request, form.errors.as_text())
         else:
+            logger.warning(f"Failed note update attempt for project {project_id}: {form.errors.as_text()}")
             messages.error(request, form.errors.as_text())
     else:
         form = ProjectNoteForm(instance=note)
@@ -307,7 +323,7 @@ def note_edit(request, project_id, pk):
 @login_required(login_url='/login/')
 def note_delete(request, project_id, pk):
     """
-    Delete a note from a project owned by the authenticated user..
+    Delete a note from a project owned by the authenticated user.
     """
     project = get_object_or_404(
         Project, pk=project_id,
