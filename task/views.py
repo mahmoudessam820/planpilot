@@ -1,6 +1,8 @@
 import logging
-from django.contrib import messages
+
 from sqlite3 import IntegrityError
+
+from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
@@ -48,9 +50,10 @@ def add(request, project_id, todolist_id):
                 task.save()
                 messages.success(request, FORM_MESSAGES['task_created'])
                 return redirect(f'/projects/{project_id}/{todolist_id}/')
-            except IntegrityError:
+            except IntegrityError as e:
                 logger.error(f"Error creating task for project_id={project_id}, todolist_id={todolist_id}: {str(e)}")
                 messages.error(request, form.errors.as_text())
+                return redirect(f'/projects/{project_id}/{todolist_id}/')
         else:
             messages.error(request, form.errors.as_text())
     else:
@@ -124,7 +127,7 @@ def edit(request, project_id, todolist_id, pk):
                 form.save()
                 messages.success(request, FORM_MESSAGES['task_updated'])
                 return redirect(f'/projects/{project_id}/{todolist_id}/')
-            except IntegrityError:
+            except IntegrityError as e:
                 logger.error(f"Error updating task pk={pk} for project_id={project_id}, todolist_id={todolist_id}: {str(e)}")
                 messages.error(request, form.errors.as_text())
         else:
@@ -132,9 +135,13 @@ def edit(request, project_id, todolist_id, pk):
     else:
         form = EditTaskForm(instance=task)
 
-    return render(request, 'task/edit.html', {'task': task})
+    return render(request, 'task/edit.html', {
+                    'task': task,
+                    'form': form
+                })
 
 
+@require_http_methods(["DELETE", "GET"])
 @login_required(login_url='/login/')
 def delete(request, project_id, todolist_id, pk):
     """

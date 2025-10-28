@@ -18,6 +18,5 @@ class Task(models.Model):
     todolist = models.ForeignKey(Todolist, related_name='tasks', on_delete=models.CASCADE)
     created_by = models.ForeignKey(User, related_name='tasks', on_delete=models.CASCADE)
 
-
     def __str__(self):
         return self.name
