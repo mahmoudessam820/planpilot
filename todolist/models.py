@@ -1,4 +1,4 @@
-import uuid 
+import uuid
 from django.db import models
 
 from account.models import User

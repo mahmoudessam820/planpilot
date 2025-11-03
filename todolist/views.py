@@ -1,7 +1,9 @@
 import logging
+
 from django.urls import reverse
 from django.contrib import messages
-from sqlite3 import IntegrityError
+from django.db import IntegrityError
+from django.core.exceptions import MultipleObjectsReturned
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.decorators.http import require_http_methods
@@ -52,7 +54,10 @@ def add(request, project_id):
     else:
         form = TodolistForm()
 
-    context = {'project': project}
+    context = {
+        'project': project,
+        'form': form,
+    }
 
     return render(request, 'todolist/add.html', context)
 
@@ -71,10 +76,10 @@ def todolist(request, project_id, pk):
             'project': project,
             'todolist': todolist,
         })
-    except Todolist.MultipleObjectsReturned:
+    except MultipleObjectsReturned:
         logger.error(f"Multiple to-do lists found with pk={pk} for project_id={project_id}")
         messages.error(request, 'An error occurred while retrieving the to-do list.')
-        return redirect(reverse('project'))
+        return redirect(reverse('project:projects'))
 
 
 @login_required(login_url='/login')
@@ -103,11 +108,13 @@ def edit(request, project_id, pk):
 
     return render(request, 'todolist/edit.html', {
         'project': project,
-        'todolist': todolist
+        'todolist': todolist,
+        'form': form
     })
 
 
 @login_required(login_url='/login')
+@require_http_methods(["DELETE", "GET"])
 def delete(request, project_id, pk):
     """
     Delete a to-do list from a project owned by the authenticated user.
